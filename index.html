@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Fortnite Clone</title>
+    <style>
+        canvas { background: skyblue; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let player = {
+            x: 50,
+            y: 300,
+            width: 30,
+            height: 50,
+            speed: 5,
+            velocityY: 0,
+            gravity: 0.5,
+            jumping: false
+        };
+        
+        let bullets = [];
+        let walls = [];
+        
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "w" && !player.jumping) {
+                player.velocityY = -10;
+                player.jumping = true;
+            }
+            if (e.key === "d") player.x += player.speed;
+            if (e.key === "a") player.x -= player.speed;
+            if (e.key === " ") {
+                bullets.push({ x: player.x + player.width, y: player.y + player.height / 2, speed: 7 });
+            }
+            if (e.key === "b") {
+                walls.push({ x: player.x + 50, y: player.y, width: 40, height: 40 });
+            }
+        });
+        
+        function update() {
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+            if (player.y >= 300) {
+                player.y = 300;
+                player.jumping = false;
+            }
+            
+            bullets.forEach((bullet, index) => {
+                bullet.x += bullet.speed;
+                if (bullet.x > canvas.width) bullets.splice(index, 1);
+            });
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            ctx.fillStyle = "black";
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, 10, 5);
+            });
+            
+            ctx.fillStyle = "brown";
+            walls.forEach(wall => {
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            });
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>
